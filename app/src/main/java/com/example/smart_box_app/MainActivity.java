@@ -1,5 +1,7 @@
 package com.example.smart_box_app;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,17 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,34 +24,46 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     public static TextView textResult;
     Button btnScan;
     MediaPlayer mediaPlayer = new MediaPlayer();
     public String URL;
+
+
+    private TextView name;
+    private Button signOut;
+    private GoogleApiClient googleApiClient;
+    private GoogleSignInOptions gso;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +72,28 @@ public class MainActivity extends AppCompatActivity {
         textResult = (TextView) findViewById(R.id.textResult);
         textResult.setAlpha(0.0f);
         btnScan = (Button) findViewById(R.id.btnScan);
+        name = findViewById(R.id.textName);
+
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        googleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+        signOut = findViewById(R.id.signOut);
+        signOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if(status.isSuccess()){
+                            gotoLoginActivity();
+                        }else{
+                            Toast.makeText(MainActivity.this, "Log out failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                });
+            }
+        });
         storagePermissions();
 
         /**
@@ -92,6 +121,37 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    private void gotoLoginActivity() {
+        startActivity(new Intent(MainActivity.this, loginGoogle.class));
+        finish();
+    }
+    private void handleSignInResult(GoogleSignInResult result){
+        if(result.isSuccess()){
+            GoogleSignInAccount account = result.getSignInAccount();
+            name.setText(account.getDisplayName());
+        }else{
+            gotoLoginActivity();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
+
+        if(opr.isDone()){
+            GoogleSignInResult result = opr.get();
+            handleSignInResult(result);
+        }else{
+            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
+                    handleSignInResult(googleSignInResult);
+                }
+            });
+        }
+    }
+
 
     public void storagePermissions(){
         PermissionListener permissionListener = new PermissionListener() {
@@ -142,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                             fos.write(arrayByte);
                             fos.close();
                             if(unpackZip(tempZip.getPath())){
-                                    showDialog("01232131");
+                                    showDialog();
                             }
                             tempZip.delete();
                         } catch (JSONException | UnsupportedEncodingException e) {
@@ -215,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Tukaj se bo shranjevala statistika odvisno ali bo uporabnik kliknil na Yes ali No
-    public void showDialog(final String phone) throws Exception {
+    public void showDialog() throws Exception {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
         builder.setMessage("Did you successfully opened Direct4.me post box?");
@@ -238,5 +298,9 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+            Toast.makeText(this, "Connection failed", Toast.LENGTH_SHORT).show();
+    }
 }
 
