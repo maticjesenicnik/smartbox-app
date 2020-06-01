@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Smart_Box_app</string>
+    <string name="image_mailbox">Mailbox image</string>
+    <string name="scan">Scan Code</string>
+    <string name="logged_as">Logged in as:</string>
+    <string name="not_logged">Not logged in</string>
+    <string name="sign_out">Sign out</string>
 </resources>

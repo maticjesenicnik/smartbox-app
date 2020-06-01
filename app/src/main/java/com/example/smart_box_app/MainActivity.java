@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
 
     private TextView name;
-    private Button signOut;
+    private ImageButton signOut;
     private GoogleApiClient googleApiClient;
     private GoogleSignInOptions gso;
     @Override

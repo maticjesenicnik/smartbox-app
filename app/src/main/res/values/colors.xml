@@ -3,4 +3,15 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+
+    <!-- Color Scheme -->
+    <color name="primarySchemeColor">#263238</color>
+    <color name="primaryLightSchemeColor">#4f5b62</color>
+    <color name="primaryDarkSchemeColor">#000a12</color>
+
+    <!-- Secondary Color Scheme -->
+    <color name="secondarySchemeColor">#78909c</color>
+    <color name="secondaryLightSchemeColor">#a7c0cd</color>
+    <color name="secondaryDarkSchemeColor">#4b636e</color>
+
 </resources>
