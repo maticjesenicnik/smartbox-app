@@ -1,13 +1,13 @@
 package com.example.lib;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class Statistics {
     private String id;
-    private LocalDateTime created;
+    private Date created;
     private boolean successful;
 
-    public Statistics(String id, LocalDateTime created, boolean successful) {
+    public Statistics(String id, Date created, boolean successful) {
         this.id = id;
         this.created = created;
         this.successful = successful;
@@ -21,11 +21,11 @@ public class Statistics {
         this.id = id;
     }
 
-    public LocalDateTime getCreated() {
+    public Date getCreated() {
         return created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(Date created) {
         this.created = created;
     }
 

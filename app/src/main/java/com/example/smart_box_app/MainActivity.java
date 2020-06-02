@@ -25,6 +25,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.lib.Statistics;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -35,6 +36,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -48,6 +50,8 @@ import java.io.UnsupportedEncodingException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
@@ -60,9 +64,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     MediaPlayer mediaPlayer = new MediaPlayer();
     public String URL;
 
+    private MyApplication app;
 
     private TextView name;
     private ImageButton signOut;
+    private FloatingActionButton fab;
     private GoogleApiClient googleApiClient;
     private GoogleSignInOptions gso;
     @Override
@@ -74,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         textResult.setAlpha(0.0f);
         btnScan = (Button) findViewById(R.id.btnScan);
         name = findViewById(R.id.textName);
+        fab = findViewById(R.id.floatingActionButton);
+
+        app = (MyApplication) getApplication();
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         googleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this)
@@ -96,6 +105,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         });
         storagePermissions();
+
+        fab.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(), ActivityStatistics.class);
+                startActivity(intent);
+            }
+        });
 
         /**
          * Function for scanning QR code
@@ -284,7 +302,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which){
-                //TODO
+                app.listStatistics.addStatistics(new Statistics(textResult.getText().toString(), new Date(), true));
+                app.saveToFile();
                 dialog.dismiss();
             }
         });
@@ -292,7 +311,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         builder.setNegativeButton("No", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which){
-                //TODO
+                app.listStatistics.addStatistics(new Statistics(textResult.getText().toString(), new Date(), false));
+                app.saveToFile();
                 dialog.dismiss();
             }
         });

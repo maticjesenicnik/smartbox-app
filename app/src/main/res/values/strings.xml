@@ -5,4 +5,9 @@
     <string name="logged_as">Logged in as:</string>
     <string name="not_logged">Not logged in</string>
     <string name="sign_out">Sign out</string>
+    <string name="box_id">Box id: </string>
+    <string name="ph_date_tmp">date_placeholder</string>
+    <string name="ph_success">success_placeholder</string>
+    <string name="success">Successful</string>
+    <string name="failed">Failed</string>
 </resources>
