@@ -34,6 +34,26 @@ public class ListStatistics {
         this.statistics.remove(statistics);
     }
 
+    public int getSuccessful(){
+        int count = 0;
+        for(Statistics statistic : this.statistics){
+            if(statistic.isSuccessful()){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getFailed(){
+        int count = 0;
+        for(Statistics statistic : this.statistics){
+            if(!statistic.isSuccessful()){
+                count++;
+            }
+        }
+        return count;
+    }
+
     public int getSize(){
         return this.statistics.size();
     }
